@@ -12,7 +12,7 @@
 
 #include "get_next_line.h"
 
-size_t	ft_strlen(const char *str)
+static size_t	ft_strlen(const char *str)
 {
 	size_t	len;
 
@@ -22,7 +22,7 @@ size_t	ft_strlen(const char *str)
 	return (len);
 }
 
-int		ft_newline(const char *all)
+static int	ft_newline(const char *all)
 {
 	int	i;
 
@@ -35,7 +35,7 @@ int		ft_newline(const char *all)
 	return (0);
 }
 
-int		ft_strjoin(char *from, char **to, int c)
+static int	ft_strjoin(char *from, char **to, int c)
 {
 	char	*new;
 	int		i;
@@ -60,7 +60,7 @@ int		ft_strjoin(char *from, char **to, int c)
 	return (1);
 }
 
-int		ft_clear_all(char **all, char **line, int ret)
+static int	ft_clear_all(char **all, char **line, int ret)
 {
 	int		i;
 	int		check;
@@ -88,12 +88,12 @@ int		ft_clear_all(char **all, char **line, int ret)
 	return (1);
 }
 
-int		get_next_line(int fd, char **line)
+int	get_next_line(int fd, char **line)
 {
 	int			ret;
 	int			check;
 	char		buff[BUFFER_SIZE + 1];
-	static char *all;
+	static char	*all;
 
 	*line = NULL;
 	ret = read(fd, buff, BUFFER_SIZE + 1);
@@ -106,35 +106,11 @@ int		get_next_line(int fd, char **line)
 		if (!check)
 		{
 			if (all)
-				free(all);			
+				free(all);
 			return (-1);
 		}
 		else if (!ft_newline(all))
 			return (get_next_line(fd, line));
 	}
 	return (ft_clear_all(&all, line, ret));
-}
-
-int		main(int ac, char *av[])
-{
-	char	*line;
-	int		ret;
-	int		fd;
-
-	if (ac != 2)
-		return (0);
-	fd = open(av[1], O_RDONLY);
-	ret = get_next_line(fd, &line);
-	while (ret > 0)
-	{
-		printf("%s", line);
-		if (line)
-			free(line);
-		ret = get_next_line(fd, &line);
-	}
-	printf("%s", line);
-	if (line)
-		free(line);
-	close(fd);
-	return (0);
 }

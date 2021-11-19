@@ -20,9 +20,9 @@
 # include <unistd.h>
 # include <limits.h>
 
-int get_next_line(int fd, char **line);
+int	get_next_line(int fd, char **line);
 
-# define BUFFER_SIZE 10
+// # define BUFFER_SIZE 2
 
 // to check:
 // - when buffer_size < 4
