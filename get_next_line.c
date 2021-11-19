@@ -92,11 +92,11 @@ int		get_next_line(int fd, char **line)
 {
 	int			ret;
 	int			check;
-	char		buff[BUFFER_SIZE];
+	char		buff[BUFFER_SIZE + 1];
 	static char *all;
 
 	*line = NULL;
-	ret = read(fd, buff, BUFFER_SIZE);
+	ret = read(fd, buff, BUFFER_SIZE + 1);
 	buff[ret] = 0;
 	if (ret < 0)
 		return (ret);
@@ -115,13 +115,15 @@ int		get_next_line(int fd, char **line)
 	return (ft_clear_all(&all, line, ret));
 }
 
-int		main(void)
+int		main(int ac, char *av[])
 {
 	char	*line;
 	int		ret;
 	int		fd;
 
-	fd = open("get_next_line.h", O_RDONLY);
+	if (ac != 2)
+		return (0);
+	fd = open(av[1], O_RDONLY);
 	ret = get_next_line(fd, &line);
 	while (ret > 0)
 	{

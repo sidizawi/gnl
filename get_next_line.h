@@ -22,6 +22,10 @@
 
 int get_next_line(int fd, char **line);
 
-# define BUFFER_SIZE 9
+# define BUFFER_SIZE 10
+
+// to check:
+// - when buffer_size < 4
+// - last \n
 
 #endif
