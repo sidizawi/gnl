@@ -12,13 +12,18 @@
 
 #include "get_next_line.h"
 
-static size_t	ft_strlen(const char *str)
+// work very good, but don't read last line
+
+static size_t	ft_strlen(const char *str, int c)
 {
 	size_t	len;
 
 	len = 0;
-	while (str && *str++)
+	while (str && *str && *str != c)
+	{
 		len++;
+		str++;
+	}
 	return (len);
 }
 
@@ -35,80 +40,68 @@ static int	ft_newline(const char *all)
 	return (0);
 }
 
-static int	ft_strjoin(char *from, char **to, int c)
+static char	*ft_strjoin(char *from, char *to, int c)
 {
 	char	*new;
 	int		i;
 	int		j;
 
-	new = malloc(ft_strlen(from) + ft_strlen(*to) + 1);
+	new = malloc(ft_strlen(from, c) + ft_strlen(to, 0) + 1);
 	if (!new)
-		return (0);
+		return (NULL);
 	i = 0;
 	j = 0;
-	while (*to && (*to)[j])
-		new[i++] = (*to)[j++];
-	j = 1;
-	if (from && from[0])
-		new[i++] = from[0];
-	while (from[j] && from[j - 1] != c)
+	while (to && to[j])
+		new[i++] = to[j++];
+	j = 0;
+	while (from && from[j] && from[j] != c)
 		new[i++] = from[j++];
 	new[i] = 0;
-	if (*to)
-		free(*to);
-	*to = new;
-	return (1);
+	return (new);
 }
 
 static int	ft_clear_all(char **all, char **line, int ret)
 {
-	int		i;
-	int		check;
 	char	*new;
+	int		i;
 
-	i = 1;
+	i = 0;
 	new = NULL;
-	while ((*all)[i - 1] != '\n')
+	*line = ft_strjoin(*all, *line, '\n');
+	while (*all && (*all)[i] && (*all)[i] != '\n')
 		i++;
-	check = ft_strjoin(*all, line, '\n');
-	if (check && (*all)[i])
-		check = ft_strjoin(&(*all)[i], &new, 0);
-	if (check)
-	{
-		if (*all)
-			free(*all);
-		*all = NULL;
-		if (new)
-			*all = new;
-		else if (!*all && !ret)
-			return (0);
-	}
-	else
-		return (-1);
+	if (*all && (*all)[i] && (*all)[i + 1])
+		new = ft_strjoin(&(*all)[++i], NULL, 0);
+	if (*all)
+		free(*all);
+	*all = new;
+	if (!ret && !(*all))
+		return (0);
 	return (1);
 }
 
 int	get_next_line(int fd, char **line)
 {
 	int			ret;
-	int			check;
 	char		buff[BUFFER_SIZE + 1];
+	char		*new;
 	static char	*all;
 
+	if (BUFFER_SIZE < 1)
+		return (-1);
 	*line = NULL;
-	ret = read(fd, buff, BUFFER_SIZE + 1);
+	ret = read(fd, buff, BUFFER_SIZE);
 	buff[ret] = 0;
 	if (ret < 0)
 		return (ret);
 	if (ret > 0)
 	{
-		check = ft_strjoin(buff, &all, 0);
-		if (!check)
-		{
-			if (all)
-				free(all);
+		new = ft_strjoin(buff, all, 0);
+		if (all)
+			free(all);
+		all = new;
+		if (!all)
 			return (-1);
-		}
 		else if (!ft_newline(all))
 			return (get_next_line(fd, line));
 	}
